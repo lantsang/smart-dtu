@@ -1,0 +1,29 @@
+{
+	"uart2": {
+		"parity": 0,
+		"baud_rate": 115200,
+		"flow_control": 0,
+		"stop_bits": 1,
+		"data_bits": 8
+	},
+	"mqtt_tencent": {
+		"product_id": "FKL718DQJZ",
+		"pub_topic": "event",
+		"product_secret": "6c5fdda634b6b54a10d6a70fd22db067",
+		"sub_topic": "control"
+	},
+	"uart1": {
+		"parity": 0,
+		"flow_control": 0,
+		"baud_rate": 115200,
+		"stop_bits": 1,
+		"data_bits": 8
+	},
+	"uart0": {
+		"baud_rate": 115200,
+		"parity": 0,
+		"flow_control": 0,
+		"stop_bits": 1,
+		"data_bits": 8
+	}
+}

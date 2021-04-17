@@ -1,0 +1,12 @@
+{
+  "recommendations": [
+    "streetsidesoftware.code-spell-checker",
+    "wayou.vscode-todo-highlight",
+    "gruntfuggly.todo-tree",
+    "njpwerner.autodocstring",
+    "aaron-bond.better-comments",
+    "kevinrose.vsc-python-indent",
+    "spywhere.guides",
+    "obkoro1.korofileheader"
+  ]
+}
