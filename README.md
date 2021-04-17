@@ -225,3 +225,4 @@ PMW控制逻辑，负责打开和关闭PMW端口，可以模拟实现呼吸灯�
 [青石SmartDtu平台](https://dtu.lantsang.net)，登录账号：dtu, 登陆密码：d123qwe
 
 ## 10 版权信息
+[MIT](https://gitee.com/lantsang/smart-dtu/blob/master/LICENSE)
