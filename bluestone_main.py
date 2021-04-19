@@ -19,6 +19,7 @@ import dataCall
 import net
 import modem
 import checkNet
+import ntptime
 import _thread
 
 from misc import Power
@@ -64,6 +65,7 @@ bs_fota = None
 timer_name_list = ["timer0", "timer1", "timer2", "timer3"]
 timer_list = [Timer.Timer0, Timer.Timer1, Timer.Timer2, Timer.Timer3]
 timer_job_name_list = []
+is_timer_job_running = False
 
 def init_one_uart(config, name):
     global bs_uart
@@ -126,7 +128,10 @@ def init_socket(config):
 
 def send_device_info():
     global bs_mqtt
-    
+
+    # 同步ntp时间
+    ntptime.settime()
+
     start_modem()
     start_aht10()
     start_gpio()
@@ -155,12 +160,14 @@ def start_aht10():
     global bs_aht10
 
     try:
-        system_log.info("Start to read temperature and humidity")
+        system_log.info("Start to read temperature and humidity, the time is {}".format(utime.localtime()))
 
         (temperature, humidity) = bs_aht10.start_measure()
         message = {"temperature":{},"humidity":{}}
         message["temperature"] = temperature
         message["humidity"] = humidity
+
+        system_log.info("The temperature and humidity data has been read, the time is {}".format(utime.localtime()))
         
         bs_data_config.update_config('aht10', message)
     except Exception as err:
@@ -177,7 +184,13 @@ def start_gpio():
         system_log.error("Cannot get gpio level list, the error is {}".format(err))
 
 def start_one_job(args):
-    global timer_job_name_list, bs_mqtt, bs_data_config
+    global timer_job_name_list, bs_mqtt, bs_data_config, is_timer_job_running
+
+    if is_timer_job_running:
+        system_log.error("The timer job is running, skipping the new one")
+        return
+    
+    is_timer_job_running = True
 
     if "aht10" in timer_job_name_list:
         start_aht10();
@@ -188,6 +201,14 @@ def start_one_job(args):
     message = ujson.loads(data_config)
     system_log.info("Data configuration is {}".format(message))
     bs_mqtt.publish(message)
+
+    while True:
+        is_message_published = bs_mqtt.is_message_published()
+        if is_message_published:
+            break
+        utime.sleep_ms(300)
+        
+    is_timer_job_running = False
 
 def start_timer_job(timer_id, period, mode, func_name):
     global bs_timer
@@ -220,12 +241,7 @@ def check_timer(config, timer_name):
             callback = bs_config.get_value(timer_config, "callback")
             if callback:
                 timer_job_name_list = callback.split(',')
-
-            try:
-                system_log.info("Start one timer job, id:{}, period:{}, mode:{}".format(timer_id, period, mode))
-                _thread.start_new_thread(start_timer_job, (timer_id, period, mode, timer_job_name_list))
-            except Exception as err:
-                system_log.error("Cannot start the timer {}, error is {}".format(timer_id, err))
+                start_timer_job(timer_id, period, mode, timer_job_name_list)
 
 def init_timer(config):
     global bs_timer

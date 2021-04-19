@@ -52,7 +52,8 @@ class BluestoneMqtt(object):
         self.publish_topic = pub_topic
         
         self.client = None
-        self.is_sub_callback_running = False
+        self._is_sub_callback_running = False
+        self._is_message_published = False
 
     def _init_mqtt(self):
         self.bs_config = bluestone_config.BluestoneConfig('bluestone_config.json')
@@ -146,15 +147,15 @@ class BluestoneMqtt(object):
         except Exception as err:
 	        _mqtt_log.error(err)
         finally:
-            self.is_sub_callback_running = False
+            self._is_sub_callback_running = False
 
     # 云端消息响应回调函数
     def _sub_callback(self, topic, msg):
-        if self.is_sub_callback_running:
+        if self._is_sub_callback_running:
             _mqtt_log.error("Subscribe callback function is running, skipping the new request")
             return
 
-        self.is_sub_callback_running = True
+        self._is_sub_callback_running = True
         _thread.start_new_thread(self._sub_callback_internal, (topic, msg))
 
     def _mqtt_publish(self, message):
@@ -163,6 +164,7 @@ class BluestoneMqtt(object):
         
         if self.client is not None:
             self.client.publish(self.publish_topic, message)
+            self._is_message_published = True;
             _mqtt_log.info("Publish topic is {}, message is {}".format(self.publish_topic, message))
 
     def _wait_msg(self):
@@ -171,6 +173,9 @@ class BluestoneMqtt(object):
                 self.client.wait_msg()
             utime.sleep_ms(300)
 
+    def is_message_published(self):
+        return self._is_message_published
+        
     def start(self):
         self._init_mqtt()
 
@@ -184,6 +189,7 @@ class BluestoneMqtt(object):
 
         #_mqtt_log.info("Publish message is {}".format(message))
         #self._mqtt_publish(ujson.dumps(message))
+        self._is_message_published = False
         _thread.start_new_thread(self._mqtt_publish, ([ujson.dumps(message)]))
 
     def connect(self):

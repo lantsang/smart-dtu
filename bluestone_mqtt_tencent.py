@@ -56,7 +56,8 @@ class BluestoneMqttTencent(object):
         _mqtt_log.info("Start a new mqtt client, product id:{}, device name:{}, subscribe topic is {}, publish topic is {}".format(self.product_id, self.device_name, self.subscribe_topic, self.publish_topic))
 
         self.client = None
-        self.is_sub_callback_running = False
+        self._is_sub_callback_running = False
+        self._is_message_published = False
 
     def init(self):
         self.bs_config = bluestone_config.BluestoneConfig('bluestone_config.json')
@@ -143,21 +144,25 @@ class BluestoneMqttTencent(object):
         except Exception as err:
 	        _mqtt_log.error(err)
         finally:
-            self.is_sub_callback_running = False
+            self._is_sub_callback_running = False
 
     # 云端消息响应回调函数
     def _sub_callback(self, topic, msg):
-        if self.is_sub_callback_running:
+        if self._is_sub_callback_running:
             _mqtt_log.error("Subscribe callback function is running, skipping the new request")
             return
 
-        self.is_sub_callback_running = True
+        self._is_sub_callback_running = True
         _thread.start_new_thread(self._sub_callback_internal, (topic, msg))
 
     def _mqtt_publish(self, message):
         if self.client is not None:
             self.client.publish(self.publish_topic, message)
+            self._is_message_published = True;
             _mqtt_log.info("Publish topic is {}, message is {}".format(self.publish_topic, message))
+
+    def is_message_published(self):
+        return self._is_message_published
 
     def publish(self, message):
         network_state = bluestone_common.BluestoneCommon.get_network_state()
@@ -165,6 +170,7 @@ class BluestoneMqttTencent(object):
             _mqtt_log.error("Cannot publish mqtt message, the network state is {}".format(network_state))
             return
 
+        self._is_message_published = False
         _thread.start_new_thread(self._mqtt_publish, ([ujson.dumps(message)]))
 
     def connect(self):
