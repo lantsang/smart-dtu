@@ -221,7 +221,11 @@ def check_timer(config, timer_name):
             if callback:
                 timer_job_name_list = callback.split(',')
 
-            start_timer_job(timer_id, period, mode, timer_job_name_list)
+            try:
+                system_log.info("Start one timer job, id:{}, period:{}, mode:{}".format(timer_id, period, mode))
+                _thread.start_new_thread(start_timer_job, (timer_id, period, mode, timer_job_name_list))
+            except Exception as err:
+                system_log.error("Cannot start the timer {}, error is {}".format(timer_id, err))
 
 def init_timer(config):
     global bs_timer
@@ -257,7 +261,7 @@ def check_network():
             #system_log.info("Check network connection")
             checknet.wait_network_connected()
             retry_count = 0
-        except Exception:
+        except Exception as err:
             retry_count += 1
             system_log.error("Cannot connect to network, will retry it after {} millseconds for {} time".format(2000, retry_count))
 
@@ -281,7 +285,7 @@ def start_network():
         checknet.wait_network_connected()
         dataCall.setCallback(network_state_changed)
         _thread.start_new_thread(check_network, ())
-    except BaseException:
+    except Exception as err:
         _thread.start_new_thread(check_network, ())
 
 def feed_dog(args):

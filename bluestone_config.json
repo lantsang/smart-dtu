@@ -25,5 +25,11 @@
 		"flow_control": 0,
 		"stop_bits": 1,
 		"data_bits": 8
+	},
+	"timer1": {
+		"status": 1,
+		"period": 5000,
+		"mode": 1,
+		"callback": "aht10"
 	}
 }
