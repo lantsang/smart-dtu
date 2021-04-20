@@ -106,8 +106,10 @@ def init_mqtt_tencent(config):
 
     mqtt_config = bs_config.read_config_by_name(config, 'mqtt_tencent')
     if mqtt_config is None:
-        mqtt_config = {"product_id":"FKL718DQJZ", "product_secret":"6c5fdda634b6b54a10d6a70fd22db067","sub_topic":"control","pub_topic":"event"}
-        bs_config.update_config("mqtt_tencent", mqtt_config)
+        system_log.error("Cannot start mqtt proxy, please check the configuration for tencent mqtt")
+        return
+        # mqtt_config = {"product_id":"FKL718DQJZ", "product_secret":"6c5fdda634b6b54a10d6a70fd22db067","sub_topic":"control","pub_topic":"event"}
+        # bs_config.update_config("mqtt_tencent", mqtt_config)
     
     try:
         #mqtt_config["client_id"] = "Bluestone_{}".format(bluestone_common.BluestoneCommon.get_sn())
