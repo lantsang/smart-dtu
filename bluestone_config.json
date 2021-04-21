@@ -7,9 +7,9 @@
 		"data_bits": 8
 	},
 	"mqtt_tencent": {
-		"product_id": "FKL718DQJZ",
+		"product_id": "输入你在腾讯云上的产品id",
 		"pub_topic": "event",
-		"product_secret": "6c5fdda634b6b54a10d6a70fd22db067",
+		"product_secret": "输入你在腾讯云上的产品密钥",
 		"sub_topic": "control"
 	},
 	"uart1": {
