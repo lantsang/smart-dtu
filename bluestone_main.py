@@ -108,7 +108,7 @@ def init_mqtt_tencent(config):
     if mqtt_config is None:
         system_log.error("Cannot start mqtt proxy, please check the configuration for tencent mqtt")
         return
-        # mqtt_config = {"product_id":"FKL718DQJZ", "product_secret":"6c5fdda634b6b54a10d6a70fd22db067","sub_topic":"control","pub_topic":"event"}
+        # mqtt_config = {"product_id":"", "product_secret":"","sub_topic":"control","pub_topic":"event"}
         # bs_config.update_config("mqtt_tencent", mqtt_config)
     
     try:
