@@ -8,7 +8,6 @@
 平台支持是借助腾讯云平台作为中间平台，将EC600S硬件和青石的平台连通起来，既可以满足大量数据的稳定性交互能力，又可以保障数据和通信的安全性。
 
 
-
 - **[硬件平台](#jump_1)**
 - **[开发环境](#jump_2)**
 - **[代码架构](#jump_3)**
@@ -23,7 +22,8 @@
 <a id="jump_1"></a>
 ## 1 硬件平台
 我们的代码运行在移远的EC600S平台上，开发语言是QuecPython，这是移远官方基于MicroPython扩展的开发语言，专门用于移远平台的嵌入式开发，在功能接口定义还是目录结构形式都与MicroPython保持高度的一致。两者同样应用于嵌入式场景开发，轻Python开发语言使得开发者上手更快，开发门槛大大降低。
-![EC600S平台](https://python.quectel.com/doc/doc/Quecpython_intro/zh/Qp_Hw_EC600X/media/EC600XV1.1_positive.png)
+![EC600S硬件平台](https://bluestone.oss-cn-beijing.aliyuncs.com/images/ec600s_1.2.jpeg)
+![EC600S硬件平台](https://bluestone.oss-cn-beijing.aliyuncs.com/images/ec600s_1.2.2.jpeg)
 
 <a id="jump_2"></a>
 ## 2 开发环境
@@ -347,7 +347,7 @@ PMW控制逻辑，负责打开和关闭PMW端口，可以模拟实现呼吸灯�
 
 
 ### 9.6 设备GPIO管理
-点击左侧菜单栏中`设备列表`,进入设备列表页面后点击设备行内`GPIO`按钮即可进行设备温湿度管理
+点击左侧菜单栏中`设备列表`,进入设备列表页面后点击设备行内`GPIO`按钮即可进行设备GPIO管理
 
 ![设备GPIO管理](https://bluestone.oss-cn-beijing.aliyuncs.com/images/GPIO%E7%AE%A1%E7%90%86.png)
 
@@ -359,7 +359,7 @@ PMW控制逻辑，负责打开和关闭PMW端口，可以模拟实现呼吸灯�
 
 
 ### 9.7 设备UART管理
-点击左侧菜单栏中`设备列表`,进入设备列表页面后点击设备行内`UART`按钮即可进行设备温湿度管理
+点击左侧菜单栏中`设备列表`,进入设备列表页面后点击设备行内`UART`按钮即可进行设备UART管理
 
 ![设备UART管理](https://bluestone.oss-cn-beijing.aliyuncs.com/images/UART%E7%AE%A1%E7%90%86.png)
 
