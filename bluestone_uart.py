@@ -123,6 +123,10 @@ class BlueStoneUart(object):
                 utf8_msg = msg.decode()
                 _uart_log.info("UART read message is {}".format(utf8_msg))
 
+                is_json = bluestone_common.BluestoneCommon.is_json(utf8_msg)
+                if not is_json:
+                    self.send_message(name, utf8_msg)
+                    continue
                 try:
                     config_setting = ujson.loads(utf8_msg)
                     config_keys = config_setting.keys()

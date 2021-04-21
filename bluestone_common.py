@@ -16,6 +16,7 @@ import uos
 import ure
 import modem
 import log
+import ujson
 import _thread
 
 log.basicConfig(level = log.INFO)
@@ -62,6 +63,16 @@ class BluestoneCommon(object):
     def is_url(url):
         #pattern = ure.compile('http[s]://.+')
         return ure.match('https?://.+', url)
+    
+    @staticmethod
+    def is_json(content):
+        if not content:
+            return False
+        try:
+            ujson.loads(content)
+            return True
+        except Exception as err:
+            return False
 
     @staticmethod
     def get_range(start, end, step = 1):
