@@ -134,13 +134,13 @@ class BluestoneMqttTencent(object):
                 if exist:
                     self.bs_config.update_config(key, config)
                     self.bs_data_config.update_config(key, config)
-                    restart = self.bs_config.mqtt_check_key_restart(key)
-                if restart:
-                    restart = False
-                    _mqtt_log.info("New configuration was received from mqtt, restarting system to take effect")
-                    Power.powerRestart()
-                else:
-                    self._handle_callback(key, config)
+                    if not restart:
+                        restart = self.bs_config.mqtt_check_key_restart(key)
+                self._handle_callback(key, config)
+            if restart:
+                restart = False
+                _mqtt_log.info("New configuration was received from mqtt, restarting system to take effect")
+                Power.powerRestart()
         except Exception as err:
 	        _mqtt_log.error(err)
         finally:
