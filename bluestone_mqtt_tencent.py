@@ -96,7 +96,6 @@ class BluestoneMqttTencent(object):
                 # first payload then config
                 payload = self.bs_config.get_value(config, "payload")
                 if payload:
-                    #TODO:write uart data
                     self.bs_uart.uart_write(key, ujson.dumps(payload))
                 uart_config = self.bs_config.get_value(config, "config")
                 if uart_config:
