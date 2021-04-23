@@ -7,9 +7,9 @@
 		"data_bits": 8
 	},
 	"mqtt_tencent": {
-		"product_id": "输入你在腾讯云上的产品id",
+		"product_id": "7BWDEX69AP",
 		"pub_topic": "event",
-		"product_secret": "输入你在腾讯云上的产品密钥",
+		"product_secret": "f1895fdd4141c7f1b6f13844c9be1c66",
 		"sub_topic": "control"
 	},
 	"uart1": {

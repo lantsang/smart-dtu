@@ -26,6 +26,7 @@ from usr import bluestone_common
 from usr import bluestone_gpio
 from usr import bluestone_pwm
 from usr import bluestone_fota
+from usr import bluestone_uart
 
 log.basicConfig(level = log.INFO)
 _mqtt_log = log.getLogger("MQTT_Tencent")
@@ -40,6 +41,7 @@ class BluestoneMqttTencent(object):
         self.bs_gpio = None
         self.bs_pwm = None
         self.bs_fota = None
+        self.bs_uart = None
 
         # 设备名称（参照接入腾讯云应用开发指导）
         self.device_name = bluestone_common.BluestoneCommon.get_sn()
@@ -65,6 +67,7 @@ class BluestoneMqttTencent(object):
         self.bs_gpio = bluestone_gpio.BluestoneGPIO()
         self.bs_pwm = bluestone_pwm.BluestonePWM()
         self.bs_fota = bluestone_fota.BluestoneFOTA()
+        self.bs_uart = bluestone_uart.BlueStoneUart(None)
 
         # 创建一个MQTT实例
         self.client = TXyun(self.product_id, self.device_name, None, self.product_secret)
@@ -87,8 +90,33 @@ class BluestoneMqttTencent(object):
             _mqtt_log.error("Cannot update gpio level list, the error is {}".format(err))
 
     def _handle_callback(self, key, config):
+        result = False
         try:
-            if key == 'gpio':
+            if key.startswith('uart'):
+                # first payload then config
+                payload = self.bs_config.get_value(config, "payload")
+                if payload:
+                    #TODO:write uart data
+                    self.bs_uart.uart_write(key, ujson.dumps(payload))
+                uart_config = self.bs_config.get_value(config, "config")
+                if uart_config:
+                    self.bs_config.update_config(key, uart_config)
+                    self.bs_data_config.update_config(key, uart_config)
+                    result = True
+            elif key.startswith('pwm'):
+                id = self.bs_pwm.get_id_by_name(key)
+                is_breathe = self.bs_config.get_int_value(config, "breathe")
+                frequency = self.bs_config.get_int_value(config, "frequency")
+                duty = self.bs_config.get_float_value(config, "duty")
+                if is_breathe:
+                    self.bs_pwm.start_breathe(id, frequency)
+                else:
+                    self.bs_pwm.start_once(id, frequency, duty)
+            elif key.startswith('timer'):
+                self.bs_config.update_config(key, config)
+                self.bs_data_config.update_config(key, config)
+                result = True
+            elif key == 'gpio':
                 io_level_list = self.bs_gpio.read_all()
                 io_name_list = self.bs_gpio.get_io_name_list()
                 for gpio_key in config.keys():
@@ -100,15 +128,6 @@ class BluestoneMqttTencent(object):
                         self.bs_gpio.write(id, level)
                         io_level_list[gpio_key] = level
                 self._update_gpio_status(io_level_list)
-            elif key.startswith('pwm'):
-                id = self.bs_pwm.get_id_by_name(key)
-                is_breathe = self.bs_config.get_int_value(config, "breathe")
-                frequency = self.bs_config.get_int_value(config, "frequency")
-                duty = self.bs_config.get_float_value(config, "duty")
-                if is_breathe:
-                    self.bs_pwm.start_breathe(id, frequency)
-                else:
-                    self.bs_pwm.start_once(id, frequency, duty)
             elif key == 'fota':
                 mode = self.bs_config.get_int_value(config, "mode")
                 if mode == 0:
@@ -117,8 +136,11 @@ class BluestoneMqttTencent(object):
                 elif mode == 1:
                     url = self.bs_config.get_value(config, "url")
                     self.bs_fota.start_fota_firmware(url)
+                result = True
         except Exception as err:
-            _mqtt_log.error(err)
+            _mqtt_log.error("Cannot handle callback for tencent mqtt, the error is {}".format(err))
+            
+        return result
 
     def _sub_callback_internal(self, topic, msg):
         try:
@@ -130,19 +152,17 @@ class BluestoneMqttTencent(object):
             config_keys = config_setting.keys()
             for key in config_setting:
                 config = config_setting[key]
-                exist = self.bs_config.check_key_exist(key)
-                if exist:
-                    self.bs_config.update_config(key, config)
-                    self.bs_data_config.update_config(key, config)
+                key_exist = self.bs_config.check_key_exist(key)
+                if key_exist:
+                    result = self._handle_callback(key, config)
                     if not restart:
-                        restart = self.bs_config.mqtt_check_key_restart(key)
-                self._handle_callback(key, config)
+                        restart = result
             if restart:
                 restart = False
-                _mqtt_log.info("New configuration was received from mqtt, restarting system to take effect")
+                _mqtt_log.info("New configuration was received from tencent mqtt, restarting system to take effect")
                 Power.powerRestart()
         except Exception as err:
-	        _mqtt_log.error(err)
+	        _mqtt_log.error("Cannot handle subscribe callback for tencent mqtt, the error is {}".format(err))
         finally:
             self._is_sub_callback_running = False
 

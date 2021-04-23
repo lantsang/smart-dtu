@@ -30,17 +30,9 @@ class BluestoneConfig(object):
 
         self.config_file_name = file_name
         self.config_path = 'usr:/{}'.format(self.config_file_name)
-        self.restart_key_list = ['mqtt', 'socket', 'timer0', 'timer1', 'timer2', 'timer3']
-        self.mqtt_restart_key_list = ['uart0', 'uart1', 'uart2', 'mqtt', 'socket', 'timer0', 'timer1', 'timer2', 'timer3']
-        self.key_list = ['uart0', 'uart1', 'uart2', 'mqtt', 'socket', 'timer0', 'timer1', 'timer2', 'timer3', 'gpio']
+        self.restart_key_list = ['mqtt_tencent', 'socket', 'timer0', 'timer1', 'timer2', 'timer3']
+        self.key_list = ['uart0', 'uart1', 'uart2', 'mqtt_tencent', 'socket', 'timer0', 'timer1', 'timer2', 'timer3', 'gpio']
         BluestoneConfig.inst = self
-
-    def mqtt_check_key_restart(self, key):
-        if key is None:
-            return False
-        if key in self.mqtt_restart_key_list:
-            return True
-        return False
 
     def check_key_restart(self, key):
         if key is None:

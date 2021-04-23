@@ -118,7 +118,7 @@ def init_mqtt_tencent(config):
 
         send_device_info()
     except Exception as err:
-        system_log.error("Cannot start mqtt proxy, the error is {}, please check the configuration".format(err))
+        system_log.error("Cannot start mqtt proxy, the error is {}".format(err))
 
 def init_socket(config):
     socket_config = bs_config.read_config_by_name(config, 'socket')

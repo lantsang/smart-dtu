@@ -94,7 +94,7 @@ class BluestonePWM(object):
                 pwm = PWM(pwm_id, PWM.ABOVE_1US, high_time, cycle_time)
                 _pwm_log.info("PWM_ABOVE_1US {} 的周期:{}us, 占空比:{}, 频率:{}KHz".format(pwm_id, cycle_time, duty_cycle, frequency))
         except Exception as err:
-	        _pwm_log.error(err)
+	        _pwm_log.error("Cannot init pwm, the error is {}".format(err))
 
         if pwm is not None:
             self.used_pwm_list[pwm_id] = pwm
