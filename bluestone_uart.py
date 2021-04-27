@@ -15,6 +15,7 @@ Copyright 2021 - 2021 bluestone tech
 import net
 import utime
 import ujson
+import ubinascii
 import log
 import _thread
 
@@ -26,6 +27,7 @@ from usr import bluestone_config
 from usr import bluestone_gpio
 from usr import bluestone_pwm
 from usr import bluestone_fota
+from usr import bluestone_socket
 
 log.basicConfig(level = log.INFO)
 _uart_log = log.getLogger("UART")
@@ -45,6 +47,7 @@ class BlueStoneUart(object):
         self.bs_gpio = None
         self.bs_pwm = None
         self.bs_fota = None
+        self.bs_socket = None
         self.uart_config = {}
         self.uart_name_list = ['uart0', 'uart1', 'uart2']
         
@@ -60,7 +63,7 @@ class BlueStoneUart(object):
         message[uart_name]["config"] = self.uart_config[uart_name]
         message[uart_name]["payload"] = payload
 
-        _uart_log.info("Uart message is {}".format(message))
+        #_uart_log.info("Uart message is {}".format(message))
         if self.bs_mqtt:
             self.bs_mqtt.publish(message)
 
@@ -108,7 +111,7 @@ class BlueStoneUart(object):
                     self.bs_fota.start_fota_app(url_list)
                 elif mode == 1:
                     url = self.bs_config.get_value(config, "url")
-                    self.bs_fota.start_fota_firmware(url)
+                    self.bs_fota.start_fota_firmware(url)         
         except Exception as err:
             _uart_log.error("Cannot handle command for uart, the error is {}".format(err))
 
@@ -128,9 +131,11 @@ class BlueStoneUart(object):
             if num:
                 _uart_log.info("UART ready data length is {}".format(num))
                 msg = uart.read(num)
+                           
                 # 初始数据是字节类型（bytes）,将字节类型数据进行编码
                 utf8_msg = msg.decode()
-                _uart_log.info("UART read message is {}".format(utf8_msg))
+                if num < 1024:
+                    _uart_log.info("UART read message is {}".format(utf8_msg))
 
                 is_json = bluestone_common.BluestoneCommon.is_json(utf8_msg)
                 if not is_json:

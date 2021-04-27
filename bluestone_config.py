@@ -96,7 +96,7 @@ class BluestoneConfig(object):
         content = None
 
         self.lock.acquire()
-        with open(path) as f:
+        with open(path, 'r') as f:
             content = f.read()
         self.lock.release()
 

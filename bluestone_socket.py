@@ -50,18 +50,29 @@ class BluestoneSocket(object):
 
         self.init_client(protocol, ip, port)
 
-    def send_data(self):
-        message = 'GET  /News  HTTP/1.1\r\nHost:  www.tongxinmao.com\r\nAccept-Encoding:deflate\r\nConnection: keep-alive\r\n\r\n'
+    def send_data(self, data):
+        if not self.client:
+            _socket_log.error("The socket client is none, please use it after initialization")
+            return
+        try:
+            self.client.send(data)
+            _socket_log.info('Send {} bytes to server'.format(len(data)))
+        except Exception as err:
+            _socket_log.error("Cannot send data by socket, the error is {}".format(err))
+
+    def receive_data(self):
+        try:
+            data = self.client.recv(1024)
+            _socket_log.info('Receive {} bytes'.format(len(data)))
+            _socket_log.info(data.decode())
+        except Exception as err:
+            _socket_log.error("Cannot receive data from socket, the error is {}".format(err))
+    
+    def start_send_thread(self, data):
+        _thread.start_new_thread(self.send_data, (data))
         
-        ret = self.client.send(message.encode("utf8"))
-        _socket_log.info('Send %d bytes' % ret)
-
-        # 接收服务端消息
-        data = self.client.recv(1024)
-        _socket_log.info('Receive %d bytes' % len(data))
-        _socket_log.info(data.decode())
-
-        self.client.close() #关闭连接
-
-    def start(self):
-        _thread.start_new_thread(self.send_data, ())
+    def close(self):
+        if self.client:
+            self.client.close()
+            _socket_log.info("The socket was closed")
+            self.client = None

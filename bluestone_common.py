@@ -47,6 +47,11 @@ class BluestoneCommon(object):
     @staticmethod
     def get_sn():
         return modem.getDevSN()
+    
+    @staticmethod
+    def generate_random_str():
+        random_str = ''.join([('0' + hex(ord(uos.urandom(1)))[2:])[-2:] for x in range(8)])
+        return random_str
 
     @staticmethod
     def check_file_exist(file_name):
