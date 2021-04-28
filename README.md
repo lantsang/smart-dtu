@@ -432,4 +432,4 @@ PMW控制逻辑，负责打开和关闭PMW端口，可以模拟实现呼吸灯�
 
 <a id="jump_10"></a>
 ## 10 版权信息
-[MIT](https://gitee.com/lantsang/smart-dtu/blob/master/LICENSE)
+[MIT](https://github.com/lantsang/SmartDtu/blob/master/LICENSE)
