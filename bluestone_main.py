@@ -60,7 +60,6 @@ bs_mqtt = None
 bs_aht10 = None
 bs_gpio = None
 bs_timer = None
-bs_fota = None
 
 timer_name_list = ["timer0", "timer1", "timer2", "timer3"]
 timer_list = [Timer.Timer0, Timer.Timer1, Timer.Timer2, Timer.Timer3]
@@ -68,7 +67,7 @@ timer_job_name_list = []
 is_timer_job_running = False
 
 def init_one_uart(config, name):
-    global bs_uart
+    global bs_config, bs_uart
 
     uart_config = bs_config.read_config_by_name(config, name)
     if uart_config is None:
@@ -85,7 +84,7 @@ def init_uart(config):
     init_one_uart(config, 'uart2')
 
 def init_mqtt(config):
-    global bs_mqtt
+    global bs_config, bs_mqtt
 
     mqtt_config = bs_config.read_config_by_name(config, 'mqtt')
     if mqtt_config is None:
@@ -102,7 +101,7 @@ def init_mqtt(config):
         system_log.error("Cannot start mqtt proxy, the client_id is {}, please check the configuration".format(mqtt_config["client_id"]))
 
 def init_mqtt_tencent(config):
-    global bs_mqtt
+    global bs_config, bs_mqtt
 
     mqtt_config = bs_config.read_config_by_name(config, 'mqtt_tencent')
     if mqtt_config is None:
@@ -121,6 +120,8 @@ def init_mqtt_tencent(config):
         system_log.error("Cannot start mqtt proxy, the error is {}".format(err))
 
 def init_socket(config):
+    global bs_config
+    
     socket_config = bs_config.read_config_by_name(config, 'socket')
     if socket_config is None:
         socket_config = {"protocol":"tcp","server":"www.tongxinmao.com","port":80}
@@ -129,7 +130,7 @@ def init_socket(config):
     bs_socket.start()
 
 def send_device_info():
-    global bs_mqtt
+    global bs_data_config, bs_mqtt
 
     # 同步ntp时间
     ntptime.settime()
@@ -144,6 +145,8 @@ def send_device_info():
     bs_mqtt.publish(message)
 
 def start_modem():
+    global bs_data_config
+    
     try:
         system_log.info("Start to read modem info")
 
@@ -159,7 +162,7 @@ def start_modem():
         system_log.error("Cannot get modem info, the error is {}".format(err))
 
 def start_aht10():
-    global bs_aht10
+    global bs_aht10, bs_data_config
 
     try:
         system_log.info("Start to read temperature and humidity, the time is {}".format(utime.localtime()))
@@ -176,7 +179,7 @@ def start_aht10():
         system_log.error("Cannot get temperature and humidity, the error is {}".format(err))
 
 def start_gpio():
-    global bs_gpio
+    global bs_gpio, bs_data_config
 
     try:
         system_log.info("Start to read gpio level list")
@@ -227,7 +230,7 @@ def get_timer_by_name(name):
     return timer_list[index]
 
 def check_timer(config, timer_name):
-    global timer_job_name_list
+    global bs_config, timer_job_name_list
 
     timer_config = bs_config.read_config_by_name(config, timer_name)
     system_log.info("Timer {}'s config is {}".format(timer_name, ujson.dumps(timer_config)))
